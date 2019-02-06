@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:spring="http://www.mulesoft.org/schema/mule/spring" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/spring http://www.mulesoft.org/schema/mule/spring/current/mule-spring.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ce1d3a72-c666-4414-a2c6-fa59586a06ee" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<spring:config name="Spring_Config" doc:name="Spring Config" doc:id="a4dd4736-779c-4fd2-bc67-482307bc87bc" files="beans.xml" />
+	<spring:security-manager doc:name="Spring Security manager" doc:id="ac56a116-2e00-4ecf-b06d-e762bce5f97b" >
+		<spring:delegate-security-provider name="securityProvider" delegate-ref="authenticationManager" />
+	</spring:security-manager>
+	<flow name="basicauth-testFlow" doc:id="963c65e2-6c4c-4a2d-8cf8-e90f020e6fe3" >
+		<http:listener doc:name="Listener" doc:id="31c6e055-9186-4c40-85e8-c65f0038d2ef" config-ref="HTTP_Listener_config" path="/security"/>
+				<http:basic-security-filter doc:name="Basic security filter" doc:id="5e9f50f7-866b-4937-88c3-ef79c6d2b80f" realm="mule" />
+		<spring:authorization-filter doc:name="Authorization filter" doc:id="7fb99784-ca64-4391-820c-55d91bd6962f" requiredAuthorities="ROLE_ADMIN" />
+		<ee:transform doc:name="Transform Message" doc:id="1aad11b9-d813-47c9-a8e2-b730d9acf2a4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message : "Hello World"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
